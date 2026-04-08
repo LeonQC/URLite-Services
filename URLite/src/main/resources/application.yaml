@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: URLite
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db_URLite?currentSchema=public
+    driver-class-name: org.postgresql.Driver
+    username: tom
+    password: 123456
