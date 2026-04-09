@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+
 
 @RequiredArgsConstructor
 @Slf4j
@@ -41,5 +43,15 @@ public class UrlController {
         log.info("get url for aliases: {}", url);
         String aliases = urlService.getAliases(url);
         return ResponseEntity.status(HttpStatus.OK).body(aliases);
+    }
+
+    @GetMapping("/{shortCode}")
+    public ResponseEntity<?> redirect(@PathVariable String shortCode) {
+        log.info("get url for shortCode: {}", shortCode);
+        String originalUrl = urlService.getOriginalUrl(shortCode);
+        if (originalUrl == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(originalUrl)).build();
     }
 }
