@@ -9,4 +9,6 @@ public interface UrlService {
     String getTitle(String url);
 
     String getAliases(String url);
+
+    String getOriginalUrl(String shortCode);
 }

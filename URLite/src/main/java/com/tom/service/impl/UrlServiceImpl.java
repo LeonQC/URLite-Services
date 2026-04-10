@@ -63,4 +63,11 @@ public class UrlServiceImpl implements UrlService {
     public String getAliases(String url) {
         return AliasGenerator.generate(url);
     }
+
+    @Override
+    public String getOriginalUrl(String shortCode) {
+        return urlRepository.findByShortCode(shortCode)
+                .map(Url::getOriginalUrl)
+                .orElse(null);
+    }
 }
