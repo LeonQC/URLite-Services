@@ -3,6 +3,8 @@ package com.tom.service;
 import com.tom.pojo.Url;
 import com.tom.pojo.UrlRequestBody;
 
+import java.util.List;
+
 public interface UrlService {
     Url createUrl(UrlRequestBody urlRequestBody);
 
@@ -11,4 +13,6 @@ public interface UrlService {
     String getAliases(String url);
 
     String getOriginalUrl(String shortCode);
+
+    List<Url> findAll();
 }

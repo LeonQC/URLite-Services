@@ -3,7 +3,7 @@ package com.tom.utils;
 public class Base62 {
     private static final String CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int BASE = 62;
-    public static final String BASE_URL = "http://URLite.com/";
+    public static final String BASE_URL = "http://localhost:8080/";
 
     public static String encode(int num) {
         StringBuilder sb = new StringBuilder();
