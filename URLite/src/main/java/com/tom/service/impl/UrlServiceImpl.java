@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class UrlServiceImpl implements UrlService {
         if (!aliasExists) {
             Url url = new Url();
             url.setOriginalUrl(urlRequestBody.getTarget_url());
+            url.setTitle(urlRequestBody.getTitle());
             url.setShortCode("");//避免数据库not null报错
             url.setCreatedAt(LocalDateTime.now());//避免数据库not null报错
             url.setClicks(0);
@@ -54,9 +56,7 @@ public class UrlServiceImpl implements UrlService {
 
     @Override
     public String getTitle(String url) {
-        String title = WebTitleFetcher.getTitle(url);
-        // todo: save title to database
-        return title;
+        return WebTitleFetcher.getTitle(url);
     }
 
     @Override
@@ -69,5 +69,14 @@ public class UrlServiceImpl implements UrlService {
         return urlRepository.findByShortCode(shortCode)
                 .map(Url::getOriginalUrl)
                 .orElse(null);
+    }
+
+    @Override
+    public List<Url> findAll() {
+        List<Url> urls = urlRepository.findAll();
+        urls.forEach(url ->
+                url.setShortUrl(Base62.BASE_URL + url.getShortCode())
+        );
+        return urls;
     }
 }

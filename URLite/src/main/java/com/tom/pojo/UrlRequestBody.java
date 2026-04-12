@@ -16,4 +16,6 @@ public class UrlRequestBody {
     @Size(min = 3, max = 30)
     @Pattern(regexp = "^[a-zA-Z0-9_-]+$", message = "Alias can only contain letters, numbers, _ and -, 3-30 length.")
     private String alias;
+
+    private String title;
 }

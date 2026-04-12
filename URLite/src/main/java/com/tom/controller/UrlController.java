@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -53,5 +54,11 @@ public class UrlController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(originalUrl)).build();
+    }
+
+    @GetMapping("/urls")
+    public ResponseEntity<?> getUrl() {
+        List<Url> urls = urlService.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(urls);
     }
 }
