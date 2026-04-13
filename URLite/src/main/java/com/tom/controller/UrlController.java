@@ -61,4 +61,10 @@ public class UrlController {
         List<Url> urls = urlService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(urls);
     }
+
+    @GetMapping("/urls/{id}")
+    public ResponseEntity<?> getUrlById(@PathVariable String id) {
+        Url url = urlService.getUrlById(Integer.valueOf(id));
+        return ResponseEntity.status(HttpStatus.OK).body(url);
+    }
 }

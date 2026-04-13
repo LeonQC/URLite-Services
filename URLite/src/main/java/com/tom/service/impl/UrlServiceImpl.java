@@ -85,4 +85,9 @@ public class UrlServiceImpl implements UrlService {
         );
         return urls;
     }
+
+    @Override
+    public Url getUrlById(Integer id) {
+        return urlRepository.findById(id).orElse(null);
+    }
 }
