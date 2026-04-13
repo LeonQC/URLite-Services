@@ -23,33 +23,39 @@ public class UrlServiceImpl implements UrlService {
 
     @Override
     public Url createUrl(UrlRequestBody urlRequestBody) {
-        boolean aliasExists = urlRepository.existsByAlias(urlRequestBody.getAlias());
-        if (!aliasExists) {
-            Url url = new Url();
-            url.setOriginalUrl(urlRequestBody.getTarget_url());
-            url.setTitle(urlRequestBody.getTitle());
-            url.setShortCode("");//避免数据库not null报错
-            url.setCreatedAt(LocalDateTime.now());//避免数据库not null报错
-            url.setClicks(0);
-            url.setAlias("");//避免出现null，考虑到没有alias的request body.
-            urlRepository.save(url);
+        String requestedAlias = urlRequestBody.getAlias();
 
-            // 先存储得到id，再如下返回id。
-            String shortCode = Base62.encode(url.getId());
-            url.setShortCode(shortCode);
-            // 避免数据库short code unique报错
-            urlRepository.save(url);
-
-            if (urlRequestBody.getAlias() != null && !urlRequestBody.getAlias().isEmpty()) {
-                url.setAlias(urlRequestBody.getAlias());
-                url.setShortUrl(Base62.BASE_URL + urlRequestBody.getAlias());
-            } else {
-                url.setShortUrl(Base62.BASE_URL + shortCode);
+        // If an alias was supplied, ensure it doesn't already exist
+        if (requestedAlias != null && !requestedAlias.isEmpty()) {
+            if (urlRepository.existsByShortCode(requestedAlias)) {
+                return null;
             }
+        }
 
-            urlRepository.save(url);
-            return url;
-        } else {
+        // Prepare entity and persist once to obtain generated id
+        Url url = new Url();
+        url.setOriginalUrl(urlRequestBody.getTarget_url());
+        url.setTitle(urlRequestBody.getTitle());
+        url.setCreatedAt(LocalDateTime.now());
+        url.setClicks(0);
+        // placeholders for not-null columns
+        url.setShortCode("");
+
+        url = urlRepository.save(url); // obtain id
+
+        // Compute short code (alias takes precedence)
+        String shortCode = (requestedAlias != null && !requestedAlias.isEmpty())
+                ? requestedAlias
+                : Base62.encode(url.getId());
+
+        url.setShortCode(shortCode);
+        url.setShortUrl(Base62.BASE_URL + shortCode);
+
+        try {
+            return urlRepository.save(url);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // possible race on alias/shortCode uniqueness; surface null to indicate failure
+            log.warn("Failed to save URL due to data integrity violation: {}", e.getMessage());
             return null;
         }
     }
