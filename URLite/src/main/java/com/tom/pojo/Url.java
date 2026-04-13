@@ -15,7 +15,6 @@ public class Url {
     private String originalUrl;
     @Column(name = "short_code")
     private String shortCode;
-    private String alias;
     @Transient
     private String shortUrl;
     private String title;

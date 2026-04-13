@@ -15,4 +15,6 @@ public interface UrlService {
     String getOriginalUrl(String shortCode);
 
     List<Url> findAll();
+
+    Url getUrlById(Integer id);
 }
