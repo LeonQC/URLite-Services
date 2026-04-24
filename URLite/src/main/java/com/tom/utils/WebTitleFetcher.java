@@ -6,7 +6,6 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
-@Slf4j
 public class WebTitleFetcher {
 
     public static String getTitle(String url) {

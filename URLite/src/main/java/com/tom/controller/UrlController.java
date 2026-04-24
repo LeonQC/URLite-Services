@@ -9,10 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
-
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -66,5 +67,12 @@ public class UrlController {
     public ResponseEntity<?> getUrlById(@PathVariable String id) {
         Url url = urlService.getUrlById(Integer.valueOf(id));
         return ResponseEntity.status(HttpStatus.OK).body(url);
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
+        String batchId = UUID.randomUUID().toString();
+        urlService.process(file, batchId);
+        return ResponseEntity.status(HttpStatus.OK).body(batchId);
     }
 }
