@@ -5,6 +5,7 @@ import com.tom.pojo.Url;
 import com.tom.pojo.UrlEvent;
 import com.tom.pojo.UrlRequestBody;
 import com.tom.service.UrlService;
+import com.tom.service.redis.GlobalCounterService;
 import com.tom.utils.AliasGenerator;
 import com.tom.utils.Base62;
 import com.tom.utils.WebTitleFetcher;
@@ -26,6 +27,8 @@ public class UrlServiceImpl implements UrlService {
 
     private final UrlRepository urlRepository;
     private final KafkaTemplate<String, UrlEvent> kafkaTemplate;
+    private final GlobalCounterService globalCounterService;
+    private final Base62 base62;
 
     @Override
     public Url createUrl(UrlRequestBody urlRequestBody) {
@@ -38,24 +41,21 @@ public class UrlServiceImpl implements UrlService {
             }
         }
 
-        // Prepare entity and persist once to obtain generated id
-        Url url = new Url();
-        url.setOriginalUrl(urlRequestBody.getTarget_url());
-        url.setTitle(urlRequestBody.getTitle());
-        url.setCreatedAt(LocalDateTime.now());
-        url.setClicks(0);
-        // placeholders for not-null columns
-        url.setShortCode("");
-
-        url = urlRepository.save(url); // obtain id
+        Long id = globalCounterService.nextId("url:id");
 
         // Compute short code (alias takes precedence)
         String shortCode = (requestedAlias != null && !requestedAlias.isEmpty())
                 ? requestedAlias
-                : Base62.encode(url.getId());
+                : base62.encode(id);
 
+        Url url = new Url();
+        url.setId(id);
+        url.setOriginalUrl(urlRequestBody.getTarget_url());
+        url.setTitle(urlRequestBody.getTitle());
+        url.setCreatedAt(LocalDateTime.now());
+        url.setClicks(0);
         url.setShortCode(shortCode);
-        url.setShortUrl(Base62.BASE_URL + shortCode);
+        url.setShortUrl(base62.BASE_URL + shortCode); // it doesn't exist in DB.
 
         try {
             return urlRepository.save(url);
@@ -87,13 +87,13 @@ public class UrlServiceImpl implements UrlService {
     public List<Url> findAll() {
         List<Url> urls = urlRepository.findAll();
         urls.forEach(url ->
-                url.setShortUrl(Base62.BASE_URL + url.getShortCode())
+                url.setShortUrl(base62.BASE_URL + url.getShortCode())
         );
         return urls;
     }
 
     @Override
-    public Url getUrlById(Integer id) {
+    public Url getUrlById(Long id) {
         return urlRepository.findById(id).orElse(null);
     }
 

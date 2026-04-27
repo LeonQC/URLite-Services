@@ -17,7 +17,7 @@ public interface UrlService {
 
     List<Url> findAll();
 
-    Url getUrlById(Integer id);
+    Url getUrlById(Long id);
 
     void process(MultipartFile file, String batchId);
 }
