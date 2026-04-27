@@ -9,10 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
-
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -34,21 +35,21 @@ public class UrlController {
 
     @GetMapping("/title")
     public ResponseEntity<?> getTitle(@RequestParam String url) {
-        log.info("get url for title: {}", url);
+        log.info("get title of a url : {}", url);
         String title = urlService.getTitle(url);
         return ResponseEntity.status(HttpStatus.OK).body(title);
     }
 
     @GetMapping("/aliases")
     public ResponseEntity<?> getAliases(@RequestParam String url) {
-        log.info("get url for aliases: {}", url);
+        log.info("get aliases of a url: {}", url);
         String aliases = urlService.getAliases(url);
         return ResponseEntity.status(HttpStatus.OK).body(aliases);
     }
 
     @GetMapping("/{shortCode}")
     public ResponseEntity<?> redirect(@PathVariable String shortCode) {
-        log.info("get url for shortCode: {}", shortCode);
+        log.info("get original url through shortCode: {}", shortCode);
         String originalUrl = urlService.getOriginalUrl(shortCode);
         if (originalUrl == null) {
             return ResponseEntity.notFound().build();
@@ -64,7 +65,14 @@ public class UrlController {
 
     @GetMapping("/urls/{id}")
     public ResponseEntity<?> getUrlById(@PathVariable String id) {
-        Url url = urlService.getUrlById(Integer.valueOf(id));
+        Url url = urlService.getUrlById(Long.valueOf(id));
         return ResponseEntity.status(HttpStatus.OK).body(url);
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
+        String batchId = UUID.randomUUID().toString();
+        urlService.process(file, batchId);
+        return ResponseEntity.status(HttpStatus.OK).body(batchId);
     }
 }

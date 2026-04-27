@@ -1,12 +1,10 @@
 package com.tom.utils;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
-@Slf4j
 public class WebTitleFetcher {
 
     public static String getTitle(String url) {
